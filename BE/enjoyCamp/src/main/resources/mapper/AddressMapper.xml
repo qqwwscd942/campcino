@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.campcino.mapper.AddressMapper">
+    
+    <resultMap id="AddressResultMap" type="com.ssafy.campcino.model.AddressEntity">
+        <result property="campId" column="camp_id"/>
+        <result property="roadAddress" column="camp_road_address"/>
+        <result property="numberAddress" column="camp_number_address"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+    </resultMap>
+
+    <select id="findByCampId" parameterType="int" resultMap="AddressResultMap">
+        SELECT * FROM tbl_address WHERE camp_id = #{campId}
+    </select>
+</mapper>

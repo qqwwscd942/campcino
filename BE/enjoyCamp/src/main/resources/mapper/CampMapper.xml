@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.campcino.mapper.CampMapper">
+
+	<!-- 캠핑장 기본 정보 매핑 -->
+	<resultMap id="CampResultMap"
+		type="com.ssafy.campcino.dto.responseDto.CampDto">
+		<id property="campId" column="camp_id" />
+		<result property="regionId" column="sido_id" />
+		<result property="regionName" column="sido_name" />
+		<result property="categoryId" column="category_id" />
+		<result property="categoryName" column="camp_category" />
+		<result property="campName" column="camp_name" />
+		<result property="campHomepage" column="camp_homepage" /> <!-- 오타 수정 -->
+		<result property="campExplanation" column="camp_explanation" />
+		<result property="campPhone" column="camp_phone" />
+		<result property="campCharacter" column="camp_character" />
+		<result property="roadAddress" column="camp_road_address" />
+		<result property="numberAddress" column="camp_number_address" />
+		<result property="longitude" column="longitude" />
+		<result property="latitude" column="latitude" />
+		<result property="rating" column="avg_rating" />
+
+		<!-- 중첩된 객체 매핑 -->
+		<association property="amenities"
+			resultMap="AmenitiesResultMap" />
+		<association property="nearAmenities"
+			resultMap="NearAmenitiesResultMap" />
+		<association property="operatingHours"
+			resultMap="OperatingHoursResultMap" />
+		<association property="glampingInfo"
+			resultMap="GlampingInfoResultMap" />
+
+		<!-- 리뷰 컬렉션 매핑 -->
+		<collection property="reviews"
+			ofType="com.ssafy.campcino.dto.responseDto.ReviewDto"
+			select="getReviewsByCampId" column="camp_id" />
+	</resultMap>
+
+	<resultMap id="CampReviewSummaryResultMap"
+		type="com.ssafy.campcino.dto.responseDto.CampReviewSummaryDto">
+		<result property="campId" column="camp_id" />
+		<result property="campName" column="camp_name" />
+		<result property="avgRating" column="avg_rating" />
+		<result property="reviewCount" column="review_count" />
+	</resultMap>
+
+	<!-- AmenitiesResultMap -->
+	<resultMap id="AmenitiesResultMap"
+		type="com.ssafy.campcino.model.AmenitiesEntity">
+		<result property="f_elec" column="f_elec" />
+		<result property="f_hotWater" column="f_hot_water" />
+		<result property="f_wifi" column="f_wifi" />
+		<result property="f_firewood" column="f_firewood" />
+		<result property="f_trails" column="f_trails" />
+		<result property="f_swimming" column="f_swimming" />
+		<result property="f_playground" column="f_playground" />
+		<result property="f_market" column="f_market" />
+		<result property="f_toilets" column="f_toilets" /> <!-- 오타 수정 -->
+		<result property="f_showers" column="f_showers" />
+		<result property="f_sinks" column="f_sinks" />
+		<result property="f_fireExtinguishers"
+			column="f_fire_extinguishers" />
+	</resultMap>
+
+	<!-- NearAmenitiesResultMap -->
+	<resultMap id="NearAmenitiesResultMap"
+		type="com.ssafy.campcino.dto.responseDto.NearAmenitiesDto">
+		<result property="n_fishing" column="n_fishing" />
+		<result property="n_hiking" column="n_hiking" />
+		<result property="n_beach" column="n_beach" />
+		<result property="n_waterSports" column="n_water_sports" />
+		<result property="n_valley" column="n_valley" />
+		<result property="n_river" column="n_river" />
+		<result property="n_pool" column="n_pool" />
+		<result property="n_youth" column="n_youth" />
+		<result property="n_farm" column="n_farm" />
+		<result property="n_kids" column="n_kids" />
+	</resultMap>
+
+	<!-- OperatingHoursResultMap -->
+	<resultMap id="OperatingHoursResultMap"
+		type="com.ssafy.campcino.dto.responseDto.OperatingHoursDto">
+		<result property="o_weekday" column="o_weekday" />
+		<result property="o_weekend" column="o_weekend" />
+		<result property="o_spring" column="o_spring" />
+		<result property="o_summer" column="o_summer" />
+		<result property="o_fall" column="o_fall" />
+		<result property="o_winter" column="o_winter" />
+	</resultMap>
+
+	<!-- GlampingInfoResultMap -->
+	<resultMap id="GlampingInfoResultMap"
+		type="com.ssafy.campcino.dto.responseDto.GlampingInfoDto">
+		<result property="g_bed" column="g_bed" />
+		<result property="g_tv" column="g_tv" />
+		<result property="g_fridge" column="g_fridge" />
+		<result property="g_internet" column="g_internet" />
+		<result property="g_toilet" column="g_toilet" />
+		<result property="g_aircon" column="g_aircon" />
+		<result property="g_heater" column="g_heater" />
+		<result property="g_cook_tool" column="g_cook_tool" />
+	</resultMap>
+
+	<!-- ReviewResultMap -->
+	<resultMap id="ReviewResultMap"
+		type="com.ssafy.campcino.dto.responseDto.ReviewDto">
+		<id property="reviewId" column="review_id" />
+		<result property="campRate" column="camp_rate" />
+		<result property="userId" column="user_id" />
+		<result property="comment" column="comment" />
+		<result property="createdAt" column="created_at" />
+	</resultMap>
+
+	<!-- 캠핑장 목록 조회 -->
+	<select id="getSelect" parameterType="map"
+		resultMap="CampResultMap">
+		SELECT
+		c.camp_id,
+		c.sido_id,
+		s.sido_name,
+		c.category_id,
+		cat.camp_category,
+		c.camp_name,
+		c.camp_homepage,
+		c.camp_explanation,
+		c.camp_phone,
+		c.camp_character,
+		a.camp_road_address,
+		a.camp_number_address,
+		a.longitude,
+		a.latitude,
+		r.avg_rating,
+		f.f_elec,
+		f.f_hot_water,
+		f.f_wifi,
+		f.f_firewood,
+		f.f_trails,
+		f.f_swimming,
+		f.f_playground,
+		f.f_market,
+		f.f_toilets,
+		f.f_showers,
+		f.f_sinks,
+		f.f_fire_extinguishers,
+		nf.n_fishing,
+		nf.n_hiking,
+		nf.n_beach,
+		nf.n_water_sports,
+		nf.n_valley,
+		nf.n_river,
+		nf.n_pool,
+		nf.n_youth,
+		nf.n_farm,
+		nf.n_kids,
+		o.o_weekday,
+		o.o_weekend,
+		o.o_spring,
+		o.o_summer,
+		o.o_fall,
+		o.o_winter,
+		g.g_bed,
+		g.g_tv,
+		g.g_fridge,
+		g.g_internet,
+		g.g_toilet,
+		g.g_aircon,
+		g.g_heater,
+		g.g_cook_tool
+		FROM tbl_camp c
+		JOIN
+		tbl_sido s ON c.sido_id = s.sido_id
+		JOIN tbl_camp_category cat ON
+		c.category_id = cat.category_id
+		JOIN tbl_address a ON c.camp_id =
+		a.camp_id
+		LEFT JOIN (
+		SELECT camp_id, AVG(camp_rate) AS avg_rating
+		FROM
+		tbl_review
+		GROUP BY camp_id
+		) r ON c.camp_id = r.camp_id
+		LEFT JOIN
+		tbl_facilities f ON c.camp_id = f.camp_id
+		LEFT JOIN tbl_near_facilities
+		nf ON c.camp_id = nf.camp_id
+		LEFT JOIN tbl_op o ON c.camp_id =
+		o.camp_id
+		LEFT JOIN tbl_glamping g ON c.camp_id = g.camp_id
+		<where>
+			<if test="region != null and region != 0">
+				AND c.sido_id = #{region}
+			</if>
+			<if test="category != null and !category.isEmpty()">
+				AND c.category_id IN
+				<foreach item="item" index="index" collection="category"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="text != null and text != ''">
+				AND c.camp_name LIKE CONCAT('%', #{text}, '%')
+			</if>
+		</where>
+	</select>
+
+	<!-- 캠핑장 상세 조회 -->
+	<select id="getCampById" parameterType="int"
+		resultMap="CampResultMap">
+		SELECT
+		c.camp_id,
+		c.sido_id,
+		s.sido_name,
+		c.category_id,
+		cat.camp_category,
+		c.camp_name,
+		c.camp_homepage,
+		c.camp_explanation,
+		c.camp_phone,
+		c.camp_character,
+		a.camp_road_address,
+		a.camp_number_address,
+		a.longitude,
+		a.latitude,
+		r.avg_rating,
+		f.f_elec,
+		f.f_hot_water,
+		f.f_wifi,
+		f.f_firewood,
+		f.f_trails,
+		f.f_swimming,
+		f.f_playground,
+		f.f_market,
+		f.f_toilets,
+		f.f_showers,
+		f.f_sinks,
+		f.f_fire_extinguishers,
+		nf.n_fishing,
+		nf.n_hiking,
+		nf.n_beach,
+		nf.n_water_sports,
+		nf.n_valley,
+		nf.n_river,
+		nf.n_pool,
+		nf.n_youth,
+		nf.n_farm,
+		nf.n_kids,
+		o.o_weekday,
+		o.o_weekend,
+		o.o_spring,
+		o.o_summer,
+		o.o_fall,
+		o.o_winter,
+		g.g_bed,
+		g.g_tv,
+		g.g_fridge,
+		g.g_internet,
+		g.g_toilet,
+		g.g_aircon,
+		g.g_heater,
+		g.g_cook_tool
+		FROM tbl_camp c
+		JOIN
+		tbl_sido s ON c.sido_id = s.sido_id
+		JOIN tbl_camp_category cat ON
+		c.category_id = cat.category_id
+		JOIN tbl_address a ON c.camp_id =
+		a.camp_id
+		LEFT JOIN (
+		SELECT camp_id, AVG(camp_rate) AS avg_rating
+		FROM
+		tbl_review
+		GROUP BY camp_id
+		) r ON c.camp_id = r.camp_id
+		LEFT JOIN
+		tbl_facilities f ON c.camp_id = f.camp_id
+		LEFT JOIN tbl_near_facilities
+		nf ON c.camp_id = nf.camp_id
+		LEFT JOIN tbl_op o ON c.camp_id =
+		o.camp_id
+		LEFT JOIN tbl_glamping g ON c.camp_id = g.camp_id
+		WHERE
+		c.camp_id = #{campId}
+	</select>
+
+	<!-- 리뷰 목록 조회 -->
+	<select id="getReviewsByCampId" parameterType="int"
+		resultMap="ReviewResultMap">
+		SELECT
+		review_id,
+		camp_rate,
+		user_id,
+		comment,
+		created_at
+		FROM
+		tbl_review
+		WHERE camp_id = #{campId}
+		ORDER BY created_at DESC
+	</select>
+	<select id="getCampReviewSummaries" parameterType="map"
+		resultMap="CampReviewSummaryResultMap">
+		SELECT
+		c.camp_id,
+		c.camp_name,
+		COALESCE(r.avg_rating, 0) AS avg_rating,
+		COALESCE(r.review_count, 0) AS review_count
+		FROM tbl_camp c
+		LEFT JOIN (
+		SELECT
+		camp_id,
+		AVG(camp_rate) AS avg_rating,
+		COUNT(*) AS review_count
+		FROM tbl_review
+		GROUP BY camp_id
+		) r ON c.camp_id = r.camp_id
+		ORDER BY
+		CASE
+		WHEN #{sortBy} = 'avgRating' THEN r.avg_rating
+		WHEN #{sortBy} =
+		'reviewCount' THEN r.review_count
+		ELSE c.camp_name
+		END
+		<choose>
+			<when test="sortOrder == 'asc'">ASC</when>
+			<otherwise>DESC</otherwise>
+		</choose>
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<!-- 캠핑장 리뷰 요약 총 개수 조회 -->
+	<select id="getCampReviewSummariesCount" parameterType="map"
+		resultType="long">
+		SELECT COUNT(*)
+		FROM tbl_camp c
+	</select>
+
+	<!-- 캠핑장 리뷰 목록 조회 (페이징 지원) -->
+	<select id="getReviewsByCampIdPaginated" parameterType="map"
+		resultMap="ReviewResultMap">
+		SELECT
+		review_id,
+		camp_rate,
+		user_id,
+		comment,
+		created_at
+		FROM
+		tbl_review
+		WHERE camp_id = #{campId}
+		ORDER BY created_at DESC
+		LIMIT
+		#{limit} OFFSET #{offset}
+	</select>
+
+	<!-- 캠핑장 리뷰 총 개수 조회 -->
+	<select id="getReviewCountByCampId" parameterType="int"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM tbl_review
+		WHERE camp_id = #{campId}
+	</select>
+
+	<!-- 리뷰 삽입 쿼리 추가 -->
+	<insert id="insertReview"
+		parameterType="com.ssafy.campcino.dto.requestDto.CreateReviewRequestDto">
+		INSERT INTO tbl_review (camp_rate, comment, user_id, camp_id)
+		VALUES (#{campRate}, #{comment}, #{userId}, #{campId})
+	</insert>
+</mapper>

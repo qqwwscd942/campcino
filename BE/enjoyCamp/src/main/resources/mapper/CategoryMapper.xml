@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.campcino.mapper.CategoryMapper">
+    
+    <resultMap id="CategoryResultMap" type="com.ssafy.campcino.model.CategoryEntity">
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="camp_category"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="CategoryResultMap">
+        SELECT * FROM tbl_camp_category
+    </select>
+</mapper>

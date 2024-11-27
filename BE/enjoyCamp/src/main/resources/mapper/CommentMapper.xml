@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.campcino.mapper.CommentMapper">
+
+	<!-- 특정 게시글의 댓글 목록 조회 (페이징 적용) -->
+	<select id="getCommentsByBoardId" resultType="com.ssafy.campcino.model.CommentEntity">
+		SELECT
+		comment_id AS commentId,
+		board_id AS boardId,
+		user_id AS userId,
+		comment_content AS commentContent,
+		comment_created_at AS commentCreatedAt
+		FROM tbl_comments
+		WHERE board_id = #{boardId}
+		ORDER BY comment_created_at DESC
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<!-- 특정 게시글의 댓글 총 개수 조회 -->
+	<select id="countCommentsByBoardId" resultType="int">
+		SELECT COUNT(*)
+		FROM tbl_comments
+		WHERE board_id = #{boardId}
+	</select>
+
+	<!-- 댓글 작성 -->
+	<insert id="insertComment"
+		parameterType="com.ssafy.campcino.model.CommentEntity"
+		useGeneratedKeys="true" keyProperty="commentId">
+		INSERT INTO tbl_comments (board_id, user_id, comment_content,
+		comment_created_at)
+		VALUES (#{boardId}, #{userId}, #{commentContent}, #{commentCreatedAt})
+	</insert>
+
+	<!-- 댓글 수정 -->
+	<update id="updateComment"
+		parameterType="com.ssafy.campcino.model.CommentEntity">
+		UPDATE tbl_comments
+		SET comment_content = #{commentContent}, comment_created_at = NOW()
+		WHERE comment_id = #{commentId} AND user_id = #{userId}
+	</update>
+
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment" parameterType="map">
+		DELETE FROM tbl_comments
+		WHERE comment_id = #{commentId} AND board_id = #{boardId}
+	</delete>
+
+</mapper>

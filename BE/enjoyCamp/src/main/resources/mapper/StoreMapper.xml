@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.campcino.mapper.StoreMapper">
+
+    <resultMap id="StoreResultMap" type="com.ssafy.campcino.dto.responseDto.StoreDto">
+        <id property="shopId" column="shop_id" />
+        <result property="shopTitle" column="shop_title" />
+        <result property="shopPrice" column="shop_price" />
+        <result property="shopComment" column="shop_comment" />
+        <result property="productId" column="product_id" />
+        <result property="rating" column="rating" />
+        <result property="image" column="image" />
+    </resultMap>
+
+    <!-- 기본 이미지 URL을 설정 -->
+    <sql id="BaseImageUrl">
+        <![CDATA[
+            CONCAT('', shop_img) AS image
+        ]]>
+    </sql>
+
+    <!-- 모든 상점 조회 -->
+    <select id="findAllStores" resultMap="StoreResultMap">
+        SELECT
+        shop_id,
+        shop_title,
+        shop_price,
+        shop_comment,
+        product_id,
+        shop_rating AS rating,
+        <include refid="BaseImageUrl" />
+        FROM tbl_camp_shop
+    </select>
+
+    <!-- 특정 상점 조회 시 shop_rating을 rating으로 매핑 -->
+    <select id="findStoreById" parameterType="int" resultMap="StoreResultMap">
+        SELECT
+        shop_id,
+        shop_title,
+        shop_price,
+        shop_comment,
+        product_id,
+        shop_rating AS rating,
+        <include refid="BaseImageUrl" />
+        FROM tbl_camp_shop
+        WHERE shop_id = #{id};
+    </select>
+    <!-- 특정 상점의 모든 평점 조회 -->
+    <select id="findRatingsByShopId" parameterType="int" resultType="int">
+        SELECT shop_rate FROM tbl_shop_review WHERE shop_id = #{shopId};
+    </select>
+
+    <!-- 상점 리뷰 추가 -->
+    <insert id="insertStoreReview" parameterType="map">
+        INSERT INTO tbl_shop_review (shop_id, user_id, shop_rate, comment)
+        VALUES (#{shopId}, #{userId}, #{shopRate}, #{comment});
+    </insert>
+
+    <!-- 특정 상점의 모든 리뷰 조회 -->
+    <resultMap id="ShopReviewResultMap" type="com.ssafy.campcino.dto.responseDto.ShopReviewResponse">
+        <id property="reviewId" column="review_id" />
+        <result property="shopId" column="shop_id" />
+        <result property="userId" column="user_id" />
+        <result property="shopRate" column="shop_rate" />
+        <result property="comment" column="comment" />
+        <result property="createdAt" column="createdAt" />
+        <result property="updatedAt" column="updatedAt" />
+    </resultMap>
+
+    <select id="findStoreReviewsByShopId" parameterType="int" resultMap="ShopReviewResultMap">
+        SELECT
+        review_id,
+        shop_id,
+        user_id,
+        shop_rate,
+        comment,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS createdAt,
+        DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updatedAt
+        FROM tbl_shop_review
+        WHERE shop_id = #{shopId}
+        ORDER BY created_at DESC;
+    </select>
+
+    <!-- 리뷰 작성자 조회 -->
+    <select id="findReviewAuthorByReviewId" resultType="String" parameterType="int">
+        SELECT user_id FROM tbl_shop_review WHERE review_id = #{reviewId}
+    </select>
+
+    <!-- 리뷰 수정 -->
+    <update id="updateStoreReview" parameterType="map">
+        UPDATE tbl_shop_review
+        SET shop_rate = #{shopRate}, comment = #{comment}, updated_at = NOW()
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 리뷰 삭제 -->
+    <delete id="deleteStoreReview" parameterType="int">
+        DELETE FROM tbl_shop_review WHERE review_id = #{reviewId}
+    </delete>
+</mapper>

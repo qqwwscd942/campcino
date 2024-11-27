@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 전역 설정 -->
+    <settings>
+        <setting name="cacheEnabled" value="true"/> <!-- 2차 캐시 사용 -->
+        <setting name="useGeneratedKeys" value="true"/> <!-- 자동 생성 키 사용 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/> <!-- 스네이크 케이스를 카멜 케이스로 매핑 -->
+        <setting name="lazyLoadingEnabled" value="false"/> <!-- 지연 로딩 비활성화 -->
+        <setting name="defaultExecutorType" value="SIMPLE"/> <!-- 실행기 유형 (SIMPLE, REUSE, BATCH) -->
+    </settings>
+
+    <!-- Type Alias 설정 -->
+    <typeAliases>
+        <!-- 모델 패키지 매핑 -->
+        <package name="com.ssafy.campcino"/> <!-- 모델 클래스가 있는 패키지 -->
+    </typeAliases>
+
+    <!-- 매퍼 설정 -->
+    <mappers>
+        <mapper resource="mapper/AddressMapper.xml"/>
+        <mapper resource="mapper/CampMapper.xml"/>
+        <mapper resource="mapper/CategoryMapper.xml"/>
+        <mapper resource="mapper/SidoMapper.xml"/>
+        <mapper resource="mappers/BoardMapper.xml"/>
+        <mapper resource="mappers/CommentMapper.xml"/>
+        <mapper resource="mappers/StoreMapper.xml"/>
+    </mappers>
+</configuration>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.campcino.mapper.BoardMapper">
+
+	<!-- 게시글 목록 조회 -->
+	<select id="getBoards"
+		resultType="com.ssafy.campcino.model.BoardEntity">
+		SELECT
+		board_id AS boardId,
+		board_title AS boardTitle,
+		board_content AS
+		boardContent,
+		category,
+		img_url AS imgUrl,
+		user_id AS userId,
+		board_created_at AS boardCreatedAt,
+		board_view AS boardView
+		FROM
+		tbl_boards
+		WHERE
+		category IN
+		<foreach item="category" collection="categories" open="("
+			separator="," close=")">
+			#{category}
+		</foreach>
+		AND (board_title LIKE CONCAT('%', #{text}, '%') OR board_content LIKE
+		CONCAT('%', #{text}, '%'))
+		ORDER BY ${sortBy} ${sortOrder}
+		LIMIT #{size}
+		OFFSET #{offset}
+	</select>
+
+	<!-- 특정 게시글 조회 -->
+	<select id="getBoardById" parameterType="long"
+		resultType="com.ssafy.campcino.model.BoardEntity">
+		SELECT
+		board_id AS boardId,
+		board_title AS boardTitle,
+		board_content AS boardContent,
+		category,
+		img_url AS imgUrl,
+		user_id AS
+		userId,
+		board_created_at AS boardCreatedAt,
+		board_view AS boardView
+		FROM
+		tbl_boards
+		WHERE board_id = #{boardId}
+	</select>
+
+	<!-- 게시글 작성 -->
+	<insert id="insertBoard"
+		parameterType="com.ssafy.campcino.model.BoardEntity"
+		useGeneratedKeys="true" keyProperty="boardId">
+		INSERT INTO tbl_boards
+		(board_title, board_content, category, img_url,
+		user_id,
+		board_created_at, board_view)
+		VALUES (#{boardTitle}, #{boardContent},
+		#{category}, #{imgUrl}, #{userId},
+		CURRENT_TIMESTAMP, 0)
+	</insert>
+
+	<!-- 게시글 조회수 업데이트 -->
+	<update id="updateBoardView">
+		UPDATE tbl_boards SET board_view = #{view} WHERE
+		board_id = #{boardId}
+	</update>
+
+	<!-- 전체 게시글 수 조회 -->
+	<select id="countBoards" resultType="int">
+		SELECT COUNT(*) FROM tbl_boards
+		WHERE
+		category IN
+		<foreach item="category" collection="categories" open="("
+			separator="," close=")">
+			#{category}
+		</foreach>
+		AND (board_title LIKE CONCAT('%', #{text}, '%') OR board_content LIKE
+		CONCAT('%', #{text}, '%'))
+	</select>
+	<update id="updateBoard"
+		parameterType="com.ssafy.campcino.model.BoardEntity">
+		UPDATE tbl_boards
+		SET
+		board_title = #{boardTitle},
+		board_content = #{boardContent},
+		category = #{category},
+		img_url =
+		#{imgUrl}
+		WHERE
+		board_id = #{boardId}
+	</update>
+
+	<delete id="deleteBoard" parameterType="long">
+		DELETE FROM tbl_boards WHERE board_id = #{boardId}
+	</delete>
+
+</mapper>
